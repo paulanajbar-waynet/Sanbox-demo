@@ -11,3 +11,5 @@ Details live in `.ai/lessons/YYYY-MM-DD-slug.md`.
 - [2026-10-18 shadcn-cn-import](lessons/2026-10-18-shadcn-cn-import.md): after `shadcn add`, fix `from "cn"` → `@devmentor/ui/lib/utils` and uninstall `cn`
 - [2026-10-18 next-build-node-env](lessons/2026-10-18-next-build-node-env.md): sandbox has `NODE_ENV=development`; build with `NODE_ENV=production`
 - [2026-10-18 git-ssl-cainfo-empty](lessons/2026-10-18-git-ssl-cainfo-empty.md): git network ops fail on empty `GIT_SSL_CAINFO`; use `env -u GIT_SSL_CAINFO git …`
+- [2026-10-18 dev-server-origin-hydration](lessons/2026-10-18-dev-server-origin-hydration.md): browser-test dev via `localhost`, not `127.0.0.1` (Next 16 blocks dev resources for other origins)
+- [2026-10-18 stacked-pr-delete-branch](lessons/2026-10-18-stacked-pr-delete-branch.md): retarget stacked PRs to `main` before merging their base with `--delete-branch`, or they get closed

@@ -4,14 +4,19 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./validators/*": "./src/validators/*.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
-    "awilix": "^13.0.5"
+    "@devmentor/db": "*",
+    "awilix": "^13.0.5",
+    "pino": "^10.4.0",
+    "server-only": "^0.0.1",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "vitest": "^5.0.5"

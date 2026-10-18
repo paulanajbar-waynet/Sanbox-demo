@@ -1,0 +1,9 @@
+[
+  {
+    "advisory": "GHSA-vfj7-8cjw-p6xm",
+    "package": "braces",
+    "reason": "No fixed release exists (3.0.3 is the latest). Reached only via fast-glob in awilix listModules/loadModules (forbidden by our standards) and in the dev-only Next ESLint plugin; exploiting it requires attacker-controlled glob patterns, which DevMentor never accepts.",
+    "addedOn": "2026-10-18",
+    "reviewBy": "2027-01-18"
+  }
+]

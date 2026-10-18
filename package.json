@@ -9,13 +9,16 @@
     "dev": "npm run dev -w @devmentor/app --",
     "build": "npm run build -w @devmentor/app",
     "start": "npm run start -w @devmentor/app --",
-    "lint": "npm run lint --workspaces --if-present",
+    "lint": "eslint .",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "db": "npm run mikro-orm -w @devmentor/db --",
-    "test": "npm run test --workspaces --if-present"
+    "test": "npm run test --workspaces --if-present",
+    "audit": "node scripts/audit.mjs"
   },
   "devDependencies": {
     "@types/node": "^24",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.2",
     "typescript": "^5"
   }
 }

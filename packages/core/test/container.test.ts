@@ -1,21 +1,29 @@
 import { getOrm } from "@devmentor/db";
 import { afterAll, describe, expect, it, vi } from "vitest";
 
-import { getContainer, withRequestScope } from "../src/server/container";
+import { getContainer, logger, UserService, withScope } from "../src";
 
 afterAll(async () => {
   await (await getOrm()).close();
 });
 
-describe("withRequestScope", () => {
-  it("resolves the user repository from the composed container", async () => {
-    const count = await withRequestScope((scope) => scope.resolve("userRepository").count());
-    expect(count).toBeGreaterThanOrEqual(0);
-  });
+describe("container", () => {
+  it("registers explicit singletons and scoped services", async () => {
+    const root = await getContainer();
+    expect(root.resolve("logger")).toBe(logger);
+    expect(root.resolve("orm")).toBe(await getOrm());
 
-  it("gives every request its own EntityManager", async () => {
-    const first = await withRequestScope(async (scope) => scope.resolve("em"));
-    const second = await withRequestScope(async (scope) => scope.resolve("em"));
+    await withScope(async (scope) => {
+      expect(scope.resolve("userService")).toBeInstanceOf(UserService);
+      expect(scope.resolve("userService")).toBe(scope.resolve("userService"));
+    });
+  });
+});
+
+describe("withScope", () => {
+  it("gives every scope its own EntityManager, never the global one", async () => {
+    const first = await withScope(async (scope) => scope.resolve("em"));
+    const second = await withScope(async (scope) => scope.resolve("em"));
     expect(first).not.toBe(second);
     expect(first).not.toBe((await getOrm()).em);
   });
@@ -31,7 +39,7 @@ describe("withRequestScope", () => {
     });
 
     await expect(
-      withRequestScope(async () => {
+      withScope(async () => {
         throw new Error("boom");
       }),
     ).rejects.toThrow("boom");

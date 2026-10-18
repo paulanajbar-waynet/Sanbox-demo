@@ -1,8 +1,7 @@
 import type { MikroORM } from "@mikro-orm/postgresql";
-import { createContainer } from "awilix";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { registerDb, User, type DbCradle } from "../src";
+import { User } from "../src";
 import { initTestOrm, uniqueEmail } from "./helpers";
 
 let orm: MikroORM;
@@ -25,34 +24,15 @@ describe("migrations", () => {
   });
 });
 
-describe("registerDb", () => {
-  it("gives each request scope its own forked EntityManager", () => {
-    const container = createContainer<DbCradle>();
-    registerDb(container, orm);
-
-    const a = container.createScope<DbCradle>();
-    const b = container.createScope<DbCradle>();
-
-    expect(a.resolve("em")).toBe(a.resolve("em"));
-    expect(a.resolve("em")).not.toBe(b.resolve("em"));
-    expect(a.resolve("em")).not.toBe(orm.em);
-    expect(container.resolve("orm")).toBe(orm);
-  });
-});
-
-describe("UserRepository", () => {
-  it("counts users", async () => {
-    const container = createContainer<DbCradle>();
-    registerDb(container, orm);
-    const before = await container.createScope<DbCradle>().resolve("userRepository").count();
-
+describe("User entity", () => {
+  it("gets a UUID id and creation time from the base properties", async () => {
     const em = orm.em.fork();
-    const users = ["a", "b"].map((label) => em.create(User, { email: uniqueEmail(label), name: `Test ${label}` }));
+    const user = em.create(User, { email: uniqueEmail("base"), name: "Base" });
     await em.flush();
-    createdIds.push(...users.map((u) => u.id));
+    createdIds.push(user.id);
 
-    const after = await container.createScope<DbCradle>().resolve("userRepository").count();
-    expect(after).toBe(before + 2);
+    expect(user.id).toMatch(/^[0-9a-f-]{36}$/);
+    expect(user.createdAt).toBeInstanceOf(Date);
   });
 
   it("rejects duplicate emails", async () => {
