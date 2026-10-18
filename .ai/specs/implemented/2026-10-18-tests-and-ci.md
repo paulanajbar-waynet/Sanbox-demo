@@ -1,7 +1,7 @@
 # Tests and CI
 
 - Date: 2026-10-18
-- Status: in progress
+- Status: implemented (2026-10-18), PR #1
 
 ## Goal
 
