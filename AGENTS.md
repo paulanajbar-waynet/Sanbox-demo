@@ -98,12 +98,24 @@ Date in all names is `YYYY-MM-DD` (the current date); slug is lowercase-kebab-ca
 - If the implementation goes off track, stop and re-plan instead of pushing through with patches.
 
 ### Verify every change
-- Never report work as done without checking it. Minimum: `npm run lint` and `npm run typecheck` (all workspaces, from the repo root); for routing, config or build-related changes also `npm run build`. If the environment sets `NODE_ENV=development`, as this sandbox does, run `NODE_ENV=production npm run build`, otherwise prerendering fails with `reading 'useContext'`.
+- Never report work as done without checking it. Minimum: `npm run lint`, `npm run typecheck` and `npm test` (all workspaces, from the repo root; DB tests need `DATABASE_URL` or `TEST_DATABASE_URL`); for routing, config or build-related changes also `npm run build`. CI (`.github/workflows/ci.yml`) runs the full gate: lint, typecheck, `db migration:up` + `migration:check`, test, build. If the environment sets `NODE_ENV=development`, as this sandbox does, run `NODE_ENV=production npm run build`, otherwise prerendering fails with `reading 'useContext'`.
 - For UI or behavior changes, run the app (`npm run dev`) and confirm the change actually works.
 - Report results honestly: say what was checked, what failed, and what was skipped.
 
 ### Fix bugs autonomously
 - Given a bug report, error log or failing check, find the root cause and fix it without asking for step-by-step guidance. Reproduce first, fix, then verify that the original symptom is gone.
+
+### Tests
+- Every feature or bug fix ships with tests in the same change. Unit tests live in `packages/<pkg>/test/`, and DB-touching code gets integration tests against real PostgreSQL.
+- Tests are self-contained: they create their own fixtures, remove them in teardown, and never depend on existing data.
+- A spec for a new feature lists the tests that will cover it.
+
+### Git and pull requests
+- Never commit or push directly to `main`. Work on a branch (`feat/…`, `fix/…`, `refactor/…`, `docs/…`) and open a PR.
+- A PR is merged only when CI is green. The description gives what changed, why, the linked spec or run log, and how it was verified.
+- Labels on each PR: one category (`feature`, `bug`, `refactor`, `documentation`, `dependencies`, `security`), exactly one `priority-{low|medium|high|extreme}`, exactly one `risk-{low|medium|high}`, and one pipeline label (`review` by default, then `changes-requested`, `qa` or `merge-queue`). `blocked` and `do-not-merge` are hard stops.
+- Add `needs-qa` when a PR changes UI, the DB schema or the API surface; such a PR is merged only with `qa-approved`.
+- In this sandbox, run git network commands with `env -u GIT_SSL_CAINFO git …`, because the variable is set to an empty string.
 
 ### Review before handing off
 - Before committing or opening a PR, review your own diff: look for bugs, leftovers and needless complexity. If the solution is hacky, replace it with the clean one rather than shipping it.

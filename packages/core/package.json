@@ -7,9 +7,13 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "awilix": "^13.0.5"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.5"
   }
 }

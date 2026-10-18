@@ -8,7 +8,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "mikro-orm": "mikro-orm"
+    "mikro-orm": "mikro-orm",
+    "test": "vitest run"
   },
   "dependencies": {
     "@devmentor/core": "*",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@mikro-orm/cli": "^7.2.5",
-    "tsx": "^4.23.15"
+    "tsx": "^4.23.15",
+    "vitest": "^5.0.5"
   }
 }

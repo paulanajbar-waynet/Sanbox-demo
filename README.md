@@ -81,10 +81,13 @@ Open [http://localhost:3000](http://localhost:3000) for the frontend and [http:/
 | `npm run dev` / `build` / `start` | Next.js app (`@devmentor/app`) |
 | `npm run lint` | ESLint |
 | `npm run typecheck` | TypeScript in all workspaces |
+| `npm test` | Vitest in all workspaces (DB tests use `TEST_DATABASE_URL`, falling back to `DATABASE_URL`) |
 | `npm run db -- migration:create` | Generate a migration from entity changes |
 | `npm run db -- migration:up` | Apply pending migrations |
 
 Optional env vars: `DATABASE_POOL_MAX` (default 10) and `MIKRO_ORM_DEBUG=true` (logs SQL).
+
+CI (GitHub Actions) runs lint, typecheck, migrations, tests and the build against PostgreSQL 17 on every pull request. Changes reach `main` only through pull requests; see `AGENTS.md` for the PR and labelling rules.
 
 ## Working with AI agents
 
