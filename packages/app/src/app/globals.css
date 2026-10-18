@@ -1,0 +1,5 @@
+/* Tailwind + shadcn/ui theme come from the shared ui package. */
+@import "@devmentor/ui/styles.css";
+
+/* Scan the app's own sources as well. */
+@source "../";

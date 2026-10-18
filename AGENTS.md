@@ -8,6 +8,59 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 <!-- END:nextjs-agent-rules -->
 
+## Project: DevMentor — architecture (binding)
+
+These are fixed decisions. Do not introduce alternatives (other ORMs, DI libraries, CSS frameworks, component kits) without an approved spec in `.ai/specs/`.
+
+### Stack
+- **Next.js** (latest, App Router) + **React** + **TypeScript** (`strict`). No plain JS source files.
+- **PostgreSQL** via **MikroORM** (`@mikro-orm/postgresql`) — entities, migrations, connection pooling.
+- **Awilix** — dependency injection container.
+- **Tailwind CSS** — styling for frontend (public/user-facing) pages.
+- **shadcn/ui** — components for backend (admin/back-office) pages.
+
+### Monorepo layout
+npm workspaces; every package lives in `packages/` and is named `@devmentor/<dir>`.
+
+| Package | Path | Responsibility |
+| --- | --- | --- |
+| `@devmentor/app` | `packages/app` | The Next.js application: routes, pages, layouts, route handlers, server actions, DI container composition |
+| `@devmentor/core` | `packages/core` | Reusable, framework-agnostic code: domain types, services, utilities, DI helpers |
+| `@devmentor/db` | `packages/db` | Data layer: MikroORM config, entities, repositories, migrations, seeders |
+| `@devmentor/ui` | `packages/ui` | Reusable UI components (shadcn/ui-based and Tailwind-based) |
+
+Dependency direction (no cycles, no reverse imports):
+- `app` → `core`, `db`, `ui`
+- `db` → `core`
+- `ui` → `core` (types/utilities only)
+- `core` → no internal packages
+
+Rules:
+- Put code in the lowest package that can own it; only route- or page-specific code stays in `app`.
+- Import other packages only through their public entry (`@devmentor/<pkg>`), never via relative paths into another package's `src/`.
+- A new package needs a spec; keep the four packages above as the minimum.
+
+### Data (MikroORM)
+- Entities, repositories and migrations live only in `packages/db`. No raw SQL or DB clients elsewhere.
+- Schema changes go through generated MikroORM migrations committed to git; never edit an applied migration and never rely on schema auto-sync.
+- Use one shared `MikroORM` instance (pool) per process and a forked `EntityManager` (`em.fork()`) per request/job — never the global EM.
+- DB access happens only on the server (Server Components, route handlers, server actions, scripts) — never in client components.
+- Connection settings come from environment variables (e.g. `DATABASE_URL`); never hardcode credentials.
+- Define entities with `defineEntity` (no decorators) and add each one to `entities` in `packages/db/src/entities/index.ts`.
+- Migrations: `npm run db -- migration:create` and `npm run db -- migration:up` (the CLI config is `packages/db/src/mikro-orm.config.ts`).
+
+### Dependency injection (Awilix)
+- The container is composed in `packages/app`. `core` and `db` export registration functions (e.g. `registerDb(container)`), not ready-made containers.
+- Services receive dependencies via constructor/factory injection; do not import concrete service instances directly or create service singletons by hand.
+- Use request-scoped containers (`container.createScope()`) for anything holding per-request state (e.g. the forked `EntityManager`). In server code use `withRequestScope()` from `packages/app/src/server/container.ts`.
+
+### UI
+- Frontend pages: Tailwind utility classes; shared pieces go to `packages/ui`.
+- Backend/admin pages: shadcn/ui components (they are also Tailwind-based). Generate them into `packages/ui`, not into `app`: run `npx shadcn@latest add <name>` in `packages/ui`, then export the component from `src/index.ts`. The CLI rewrites the utils import to `from "cn"` and installs an unrelated `cn` package. Change the import to `@devmentor/ui/lib/utils` and uninstall `cn`.
+- Frontend pages go in the `src/app/(site)` route group and backend pages in `src/app/(admin)`.
+- Tailwind and the shadcn theme come from `@devmentor/ui/styles.css`, which the app's `globals.css` imports.
+- Do not add other CSS frameworks or component libraries; avoid new CSS modules except where Tailwind cannot do the job.
+
 ## `.ai/` directory — mandatory workflow
 
 All AI-related project knowledge lives in `.ai/`. Follow these rules in every session.
@@ -45,7 +98,7 @@ Date in all names is `YYYY-MM-DD` (the current date); slug is lowercase-kebab-ca
 - If the implementation goes off track, stop and re-plan instead of pushing through with patches.
 
 ### Verify every change
-- Never report work as done without checking it. Minimum: `npm run lint` and `npx tsc --noEmit`; for routing, config or build-related changes also `npm run build`.
+- Never report work as done without checking it. Minimum: `npm run lint` and `npm run typecheck` (all workspaces, from the repo root); for routing, config or build-related changes also `npm run build`. If the environment sets `NODE_ENV=development`, as this sandbox does, run `NODE_ENV=production npm run build`, otherwise prerendering fails with `reading 'useContext'`.
 - For UI or behavior changes, run the app (`npm run dev`) and confirm the change actually works.
 - Report results honestly: say what was checked, what failed, and what was skipped.
 
