@@ -11,7 +11,8 @@
     "start": "npm run start -w @devmentor/app --",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "db": "npm run mikro-orm -w @devmentor/db --"
+    "db": "npm run mikro-orm -w @devmentor/db --",
+    "test": "npm run test --workspaces --if-present"
   },
   "devDependencies": {
     "@types/node": "^24",
