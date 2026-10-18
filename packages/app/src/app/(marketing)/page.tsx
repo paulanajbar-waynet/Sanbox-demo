@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 // Frontend page: plain Tailwind.
-export default function Home() {
+export default function HomePage() {
   return (
     <main className="mx-auto flex min-h-svh max-w-3xl flex-col justify-center gap-6 px-6">
       <p className="text-sm font-medium uppercase tracking-widest text-neutral-500">DevMentor</p>
