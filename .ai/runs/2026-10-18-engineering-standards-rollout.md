@@ -49,3 +49,4 @@ Migration steps 1–3 and 7 of the standards are implemented. Steps 4–6 apply 
 
 - Auth PR: `core/src/http/auth.ts`, JWT (HS256, httpOnly cookie), bcrypt ≥ 12, login/register rate limiting, and `requireSession` on `/api/users` and `/admin`.
 - Re-review the `braces` allowlist entry by 2027-01-18.
+11. After the owner merged PR #1 with `--rebase --delete-branch`, GitHub closed PR #2 because its base was gone. Restored the base branch at its old tip, reopened PR #2, retargeted it to `main`, rebased the branch onto the new `main` (content identical to before) and force-pushed with lease, then deleted the temporary base. Recorded this as a lesson.
